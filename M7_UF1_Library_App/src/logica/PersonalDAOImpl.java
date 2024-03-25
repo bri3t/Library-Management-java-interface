@@ -58,7 +58,7 @@ public class PersonalDAOImpl implements PersonalDAO {
     }
 
     @Override
-    public List<Persona> obtenirIdPerNumCarnet(int numeroCarnet) {
+    public List<Persona> obtenirIdPerNumCarnet(String numeroCarnet) {
         List<Persona> llista = new ArrayList<>();
         Persona persona = new Persona();
         
@@ -82,12 +82,12 @@ public class PersonalDAOImpl implements PersonalDAO {
     }
     
     @Override
-    public Persona obtenirPersonaPerNumCarnet(int numeroCarnet) {
+    public Persona obtenirPersonaPerNumCarnet(String numeroCarnet) {
         Persona persona = new Persona();
         try {
             PreparedStatement ps = conn.prepareStatement(OBTENIR_PERSONA_PER_NUM_CARNET);
 
-            ps.setInt(1, numeroCarnet);
+            ps.setString(1, numeroCarnet);
 
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {

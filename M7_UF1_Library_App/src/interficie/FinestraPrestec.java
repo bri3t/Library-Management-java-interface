@@ -1,9 +1,9 @@
 package interficie;
 
+import com.toedter.calendar.JCalendar;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
@@ -13,10 +13,13 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JLabel;
@@ -35,6 +38,7 @@ import javax.swing.table.DefaultTableModel;
 import logica.PersonalDAOImpl;
 import logica.PrestecDAOImpl;
 import model.Persona;
+import model.Prestec;
 
 /**
  *
@@ -55,6 +59,7 @@ public class FinestraPrestec extends JDialog {
             lbDataInici, lbDataIniciEscrit,
             lbDataRetorn, lbDataRetornEscrit,
             lbIds;
+    JCalendar calendar = new JCalendar();
 
     // panel central
     // taula
@@ -82,6 +87,8 @@ public class FinestraPrestec extends JDialog {
     int idLlibreAFerPrestec;
     List<Persona> llistaPersonesActuals;
 
+    Prestec p = new Prestec();
+
     public FinestraPrestec(Frame owner, int idLlibre) throws SQLException {
         super(owner, true);
         idLlibreAFerPrestec = idLlibre;
@@ -107,10 +114,11 @@ public class FinestraPrestec extends JDialog {
         lbCognomEscrit = new JLabel("......");
 
         lbDataInici = new JLabel("Data inici prestec: ");
-        lbDataIniciEscrit = new JLabel("......");
+        lbDataIniciEscrit = new JLabel(calcularData(true));
 
+        int numDiesPrestec = prestecdi.obtenirDiesPrestec();
         lbDataRetorn = new JLabel("Data retorn prestec: ");
-        lbDataRetornEscrit = new JLabel("......");
+        lbDataRetornEscrit = new JLabel(calcularData(false));
 
         lbIds = new JLabel("Persona: ");
 
@@ -164,10 +172,30 @@ public class FinestraPrestec extends JDialog {
         add(panelSuperior, BorderLayout.NORTH);
     }
 
+    private String calcularData(boolean esAvui) {
+        Calendar calendar = Calendar.getInstance();
+        if (!esAvui) {
+            calendar.add(Calendar.DATE, prestecdi.obtenirDiesPrestec());
+        } else {
+            calendar.add(Calendar.DATE, 0);
+        }
+
+        Date d = calendar.getTime();
+        java.sql.Date dataSql = new java.sql.Date(d.getTime());
+        if (!esAvui) {
+            p.setDataDevolucio(dataSql);
+        }else{
+            p.setDataPrestec(dataSql);
+        }
+        
+        
+        return String.valueOf(new SimpleDateFormat("dd-MM-yyyy").format(d));
+    }
+
     private void filtrarIdPersona() {
         if (tfBuscador.getText().length() > 0) {
             List<Persona> llista;
-            llista = personaldi.obtenirIdPerNumCarnet(Integer.parseInt(tfBuscador.getText()));
+            llista = personaldi.obtenirIdPerNumCarnet((tfBuscador.getText()));
             actualitzarTaula(llista);
         } else {
             iniciarTaulaGeneral();
@@ -213,7 +241,8 @@ public class FinestraPrestec extends JDialog {
                 if (!e.getValueIsAdjusting()) {
                     int selectedRow = table.getSelectedRow();
                     if (selectedRow != -1) {
-                        _emplenarDadesUsuari(Integer.parseInt(table.getValueAt(selectedRow, 1).toString()));
+                        _emplenarDadesUsuari(table.getValueAt(selectedRow, 1).toString());
+                        tfBuscador.setText(table.getValueAt(selectedRow, 1).toString());
                     }
                 }
             }
@@ -298,7 +327,9 @@ public class FinestraPrestec extends JDialog {
             public void actionPerformed(ActionEvent e) {
                 int selectedRow = table.getSelectedRow();
                 if (selectedRow != -1) {
-                    if (prestecdi.realitzarPrestec(idLlibreAFerPrestec, Integer.parseInt(table.getValueAt(selectedRow, 0).toString()))) {
+                    p.setIdLlibre(idLlibreAFerPrestec);
+                    p.setIdPersona(personaldi.obtenirIdPerNumCarnet(table.getValueAt(selectedRow, 1).toString()).get(0).getIdPersonal());
+                    if (prestecdi.realitzarPrestec(p)) {
                         JOptionPane.showMessageDialog(null, "Prestec realitzat correctament", "Correcte", JOptionPane.INFORMATION_MESSAGE);
                         dispose();
                     } else {
@@ -314,7 +345,7 @@ public class FinestraPrestec extends JDialog {
 
     }
 
-    private void _emplenarDadesUsuari(int numCarnet) {
+    private void _emplenarDadesUsuari(String numCarnet) {
         lbNomEscrit.setText(personaldi.obtenirPersonaPerNumCarnet(numCarnet).getNom());
         lbCognomEscrit.setText(personaldi.obtenirPersonaPerNumCarnet(numCarnet).getCognom());
     }

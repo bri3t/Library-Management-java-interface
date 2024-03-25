@@ -10,7 +10,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.sql.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Llibre;
+import model.Prestec;
 
 /**
  *
@@ -27,9 +30,15 @@ public class PrestecDAOImpl implements PrestecDAO {
             + "SELECT idLlibre FROM prestec)";
     private static final String FILTRAR_PRESTATS = "SELECT * FROM llibre WHERE idLlibre IN ("
             + "SELECT idLlibre FROM prestec)";
+    private static final String COMPROVAR_SI_ES_PRESTAT = "SELECT COUNT(idLlibre) FROM prestec WHERE idLlibre = ?";
+    private static final String RETORNAR_LLIBRE = "DELETE FROM prestec WHERE idLlibre = ?";
 
-    public PrestecDAOImpl() throws SQLException {
-        conn = ConnexioBD.obtenirConnexio();
+    public PrestecDAOImpl() {
+        try {
+            conn = ConnexioBD.obtenirConnexio();
+        } catch (SQLException ex) {
+            Logger.getLogger(PrestecDAOImpl.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
     @Override
@@ -77,23 +86,13 @@ public class PrestecDAOImpl implements PrestecDAO {
     }
 
     @Override
-    public boolean realitzarPrestec(int idLlibre, int idPersona) {
-        // Obtenir la data d'avui
-        Calendar calendar = Calendar.getInstance();
-        Date avui = new Date(calendar.getTimeInMillis());
-
-        int numDiesASumar = obtenirDiesPrestec();
-
-        // Afegir 15 dies a la data actual
-        calendar.add(Calendar.DATE, numDiesASumar);
-        Date avuiMesXDies = new Date(calendar.getTimeInMillis());
-
+    public boolean realitzarPrestec(Prestec p) {
         try {
             PreparedStatement ps = conn.prepareStatement(REALITZAR_PRESTEC);
-            ps.setInt(1, idLlibre);
-            ps.setInt(2, idPersona);
-            ps.setDate(3, avui);
-            ps.setDate(4, avuiMesXDies);
+            ps.setInt(1, p.getIdLlibre());
+            ps.setInt(2, p.getIdPersona());
+            ps.setDate(3, p.getDataPrestec());
+            ps.setDate(4, p.getDataDevolucio());
             ps.executeUpdate();
             return true;
         } catch (SQLException ex) {
@@ -121,7 +120,9 @@ public class PrestecDAOImpl implements PrestecDAO {
         List<Llibre> llibres = new ArrayList<>();
 
         String filtre = FILTRAR_NO_PRESTATS;
-        if (esPrestat)filtre = FILTRAR_PRESTATS;
+        if (esPrestat) {
+            filtre = FILTRAR_PRESTATS;
+        }
 
 //        System.out.println(filtre);
         try ( PreparedStatement ps = conn.prepareStatement(filtre);) {
@@ -139,8 +140,41 @@ public class PrestecDAOImpl implements PrestecDAO {
 //        for (Llibre llibre : llibres) {
 //            System.out.println(llibre.getTitol());
 //        }
-
         return llibres;
 
     }
+
+    @Override
+    public boolean comprovarSiEsprestat(int idLlibre) {
+
+        int num = 1;
+        try {
+            PreparedStatement ps = conn.prepareStatement(COMPROVAR_SI_ES_PRESTAT);
+            ps.setInt(1, idLlibre);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                num = rs.getInt(1);
+            }
+
+        } catch (SQLException ex) {
+        }
+
+        return num > 0;
+
+    }
+
+    @Override
+    public boolean realitzarRetorn(int idLlibre) {
+        try {
+            PreparedStatement ps = conn.prepareStatement(RETORNAR_LLIBRE);
+            ps.setInt(1, idLlibre);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            System.out.println(ex.getMessage());
+        }
+       
+        return false;
+    }
+
 }

@@ -11,10 +11,10 @@ public interface PersonalDAO {
 
     List<Persona> obtenirTotsPersonal();
 
-    List<Persona> obtenirIdPerNumCarnet(int numeroCarnet);
+    List<Persona> obtenirIdPerNumCarnet(String numeroCarnet);
 
     List<Persona> obtenirIdPerId(int idPersonal);
 
-    Persona obtenirPersonaPerNumCarnet(int numeroCarnet);
+    Persona obtenirPersonaPerNumCarnet(String numeroCarnet);
 
 }
