@@ -32,7 +32,6 @@ public class AltaUsuaris extends JDialog {
     JButton btnAlta;
     private Usuari usuariModificar;
     TipusUsuariDAOImpl tui;
-    
 
     public AltaUsuaris(Frame owner, Usuari ususari, DefaultTableModel model, int selectedRow) {
         super(owner, true);
@@ -148,12 +147,15 @@ public class AltaUsuaris extends JDialog {
                     usuari.setTipusUsuari(idTipusUsuariPerNom);
 
                     if (num == 1) {
-                        if (udi.afegir(usuari)) {
-                            JOptionPane.showMessageDialog(null, "Registre exit", "Correcte", JOptionPane.INFORMATION_MESSAGE);
+                        if (!udi.comprovarUsuari(nom)) {
+                            if (udi.afegir(usuari)) {
+                                JOptionPane.showMessageDialog(null, "Registre exit", "Correcte", JOptionPane.INFORMATION_MESSAGE);
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
                         } else {
-                            JOptionPane.showMessageDialog(null, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Usuari ja existent", "Error", JOptionPane.ERROR_MESSAGE);
                         }
-
                     } else {
                         usuari.setIdUsuari(usuariModificar.getIdUsuari());
                         if (udi.actualitzar(usuari, usuariModificar.getNom(), contrasena)) {

@@ -27,6 +27,7 @@ public class UsuariDAOImpl implements UsuariDAO {
     private static final String AFEGIR_USUARI = "INSERT INTO usuaris (nomUsuari, password, idTipusUsuari) VALUES (?, MD5(?), ?)";
     private static final String ESBORRAR_USUARI = "DELETE FROM usuaris WHERE idUsuari = ?";
     private static final String OBTENIR_ID_PER_NOM = "SELECT idusuari FROM usuaris WHERE nomUsuari = ?";
+    private static final String COMPROVAR_USUARI = "SELECT count(*) quantitat FROM usuaris WHERE nomUsuari = ?";
 
     @Override
     public List<Usuari> obtenirTots() {
@@ -121,17 +122,16 @@ public class UsuariDAOImpl implements UsuariDAO {
         // Mapejar altres atributs segons la teva estructura de taula
         return usuari;
     }
-    
+
     @Override
-     public String obtenirContraseñaPerId(int idUsuari) {
+    public String obtenirContraseñaPerId(int idUsuari) {
 
         String querySQL = "SELECT password FROM usuaris WHERE idUsuari = ?";
-      
 
         try {
             PreparedStatement sentencia = conn.prepareStatement(querySQL);
             sentencia.setInt(1, idUsuari);
-              ResultSet results = sentencia.executeQuery();
+            ResultSet results = sentencia.executeQuery();
 
             while (results.next()) {
                 return results.getString("password");
@@ -160,5 +160,20 @@ public class UsuariDAOImpl implements UsuariDAO {
         return false;
     }
 
-  
+    @Override
+    public boolean comprovarUsuari(String nomUsuari) {
+        int quantitat = 0;
+
+        try ( PreparedStatement ps = conn.prepareStatement(COMPROVAR_USUARI)) {
+            ps.setString(1, nomUsuari);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            quantitat = rs.getInt("quantitat");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return quantitat > 0;
+    }
+
 }

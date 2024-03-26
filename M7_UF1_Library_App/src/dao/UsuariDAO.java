@@ -17,4 +17,5 @@ public interface UsuariDAO {
     boolean esborrar(int id);
     boolean comprovarContrasenya(String nomAntic, String contrasenya)  throws SQLException;
     String obtenirContraseñaPerId(int idUsari);
+    boolean comprovarUsuari(String nomUsuari);
 }
