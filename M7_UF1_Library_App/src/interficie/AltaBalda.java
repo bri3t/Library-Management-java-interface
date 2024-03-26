@@ -133,10 +133,15 @@ public class AltaBalda extends JDialog {
 
                     if (!tfNom.getText().isEmpty()) {
                         if (num == 1) {
-                            if (bdi.afegir(balda)) {
-                                JOptionPane.showMessageDialog(null, "Registre correcte", "Correcte", JOptionPane.INFORMATION_MESSAGE);
+                            if (!bdi.comprovarBalda(nom)) {
+
+                                if (bdi.afegir(balda)) {
+                                    JOptionPane.showMessageDialog(null, "Registre correcte", "Correcte", JOptionPane.INFORMATION_MESSAGE);
+                                } else {
+                                    JOptionPane.showMessageDialog(null, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                                }
                             } else {
-                                JOptionPane.showMessageDialog(null, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                                JOptionPane.showMessageDialog(null, "Ja existeix aquesta balda", "Error", JOptionPane.ERROR_MESSAGE);
                             }
                         } else {
                             balda.setIdBalda(baldaModificar.getIdBalda());

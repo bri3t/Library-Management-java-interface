@@ -24,6 +24,7 @@ public class BaldaDAOImpl implements BaldaDAO {
     private final String OBTENIR_TOTS_TIPUS = "SELECT * FROM baldes";
     private final String OBTENIR_NOMS_COLUMNES = "SHOW COLUMNS FROM baldes FROM m7uf1act11";
     private final String OBTENIR_ID_PER_NOM = "SELECT idBalda FROM baldes WHERE nom = ?";
+    private static final String COMPROVAR_BALDA = "SELECT count(*) quantitat FROM baldes WHERE nom = ?";
 
     private Connection conn;
 
@@ -169,9 +170,9 @@ public class BaldaDAOImpl implements BaldaDAO {
 
     @Override
     public int obtenirIdPerNom(String nom) {
-        
+
         int id = 0;
-        
+
         try {
             PreparedStatement ps = conn.prepareStatement(OBTENIR_ID_PER_NOM);
 
@@ -185,8 +186,23 @@ public class BaldaDAOImpl implements BaldaDAO {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-        
+
         return id;
     }
 
+    @Override
+    public boolean comprovarBalda(String nombalda) {
+        int quantitat = 0;
+
+        try ( PreparedStatement ps = conn.prepareStatement(COMPROVAR_BALDA)) {
+            ps.setString(1, nombalda);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            quantitat = rs.getInt("quantitat");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return quantitat > 0;
+    }
 }

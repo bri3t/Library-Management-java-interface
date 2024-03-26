@@ -22,5 +22,7 @@ public interface PrestatgeDAO {
     public String[] obtenirNomsColumnes();
     
     public int obtenirIdPerNom(String nom);
+    
+    boolean comprovarPrestatge(String nomPrestatge);
 
 }

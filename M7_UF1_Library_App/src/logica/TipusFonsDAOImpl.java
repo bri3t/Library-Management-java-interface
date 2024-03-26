@@ -23,6 +23,7 @@ public class TipusFonsDAOImpl implements TipusFonsDAO {
     private static final String ESBORRAR_TIPUSFONS = "DELETE FROM tipusfons WHERE idTipusFons = ?";
     private final String OBTENIR_NOMS_COLUMNES = "SHOW COLUMNS FROM tipusfons FROM m7uf1act11";
     private final String OBTENIR_ID_PER_NOM = "SELECT idTipusFons FROM tipusfons WHERE tipus = ?";
+    private static final String COMPROVAR_TIPUSFONS = "SELECT count(*) quantitat FROM tipusfons WHERE tipus = ?";
 
     private Connection con;
 
@@ -187,5 +188,21 @@ public class TipusFonsDAOImpl implements TipusFonsDAO {
         }
 
         return id;
+    }
+
+    @Override
+    public boolean comprovarTipusFons(String tipus) {
+        int quantitat = 0;
+
+        try ( PreparedStatement ps = con.prepareStatement(COMPROVAR_TIPUSFONS)) {
+            ps.setString(1, tipus);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            quantitat = rs.getInt("quantitat");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return quantitat > 0;
     }
 }

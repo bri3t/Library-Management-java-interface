@@ -24,5 +24,7 @@ public interface BaldaDAO {
     public String[] obtenirNomsColumnes();
 
     public int obtenirIdPerNom(String nom);
+    
+    boolean comprovarBalda(String nombalda);
 
 }

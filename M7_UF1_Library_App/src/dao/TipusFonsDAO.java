@@ -24,5 +24,7 @@ public interface TipusFonsDAO {
     List<TipusFons> obtenirTotesLesFons();
 
     public int obtenirIdPerNom(String nom);
+    
+    boolean comprovarTipusFons(String tipus);
 
 }

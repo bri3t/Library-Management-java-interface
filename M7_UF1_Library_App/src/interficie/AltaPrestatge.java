@@ -104,11 +104,15 @@ public class AltaPrestatge extends JDialog {
                     prestatge.setNom(nom);
 
                     if (num == 1) {
-                        if (pdi.afegir(prestatge)) {
-                            JOptionPane.showMessageDialog(null, "Registre correcte", "Correcte", JOptionPane.INFORMATION_MESSAGE);
-                            _buidarCaselles();
+                        if (!pdi.comprovarPrestatge(nom)) {
+                            if (pdi.afegir(prestatge)) {
+                                JOptionPane.showMessageDialog(null, "Registre correcte", "Correcte", JOptionPane.INFORMATION_MESSAGE);
+                                _buidarCaselles();
+                            } else {
+                                JOptionPane.showMessageDialog(null, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                            }
                         } else {
-                            JOptionPane.showMessageDialog(null, "Error al registrar", "Error", JOptionPane.ERROR_MESSAGE);
+                            JOptionPane.showMessageDialog(null, "Ja existeix aquest prestatge", "Error", JOptionPane.ERROR_MESSAGE);
                         }
                     } else {
                         prestatge.setIdPrestatge(prestatgeModificar.getIdPrestatge());

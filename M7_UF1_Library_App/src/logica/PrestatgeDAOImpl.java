@@ -29,9 +29,10 @@ public class PrestatgeDAOImpl implements PrestatgeDAO {
     private static final String ESBORRAR_PRESTATGE = "DELETE FROM prestatges WHERE idPrestatge = ?";
     private final String OBTENIR_TOTS_TIPUS = "SELECT * FROM prestatges";
     private final String OBTENIR_ID_PER_NOM = "SELECT idPrestatge FROM prestatges WHERE nom = ?";
-
     private final String OBTENIR_NOMS_COLUMNES = "SHOW COLUMNS FROM prestatges FROM m7uf1act11";
+    private static final String COMPROVAR_PRESTATGE = "SELECT count(*) quantitat FROM prestatges WHERE nom = ?";
 
+    
     @Override
     public Prestatge obtenirPrestatgePerId(int id) {
 
@@ -179,9 +180,8 @@ public class PrestatgeDAOImpl implements PrestatgeDAO {
     @Override
     public int obtenirIdPerNom(String nom) {
 
-
         int id = 0;
-        
+
         try {
             PreparedStatement ps = conn.prepareStatement(OBTENIR_ID_PER_NOM);
 
@@ -197,6 +197,22 @@ public class PrestatgeDAOImpl implements PrestatgeDAO {
         }
 
         return id;
+    }
+
+    @Override
+    public boolean comprovarPrestatge(String nomPrestatge) {
+        int quantitat = 0;
+
+        try ( PreparedStatement ps = conn.prepareStatement(COMPROVAR_PRESTATGE)) {
+            ps.setString(1, nomPrestatge);
+            ResultSet rs = ps.executeQuery();
+            rs.next();
+            quantitat = rs.getInt("quantitat");
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return quantitat > 0;
     }
 
 }
