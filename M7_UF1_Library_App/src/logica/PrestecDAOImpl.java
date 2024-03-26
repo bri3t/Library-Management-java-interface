@@ -24,6 +24,12 @@ public class PrestecDAOImpl implements PrestecDAO {
     Connection conn;
 
     private static final String FILTRAR_TAULES = "SELECT * FROM llibre WHERE titol LIKE ? OR autor LIKE ? OR isbn LIKE ?";
+    private static final String FILTRAR_TAULES_AMB_CONDICIO_PRESTAT = "SELECT * FROM llibre WHERE (titol LIKE ? OR autor LIKE ? OR isbn LIKE ?) "
+            + "AND idLlibre IN (SELECT idLlibre FROM prestec)";
+
+     private static final String FILTRAR_TAULES_AMB_CONDICIO_NO_PRESTAT = "SELECT * FROM llibre WHERE (titol LIKE ? OR autor LIKE ? OR isbn LIKE ?) "
+            + "AND idLlibre NOT IN (SELECT idLlibre FROM prestec)";
+    
     private static final String REALITZAR_PRESTEC = "INSERT INTO prestec (idLlibre, idPersona, dataPrestec, dataDevolucio) VALUES (?,?,?,?)";
     private static final String OBTENIR_NUM_DIES = "SELECT tempsPrestec FROM configuracio";
     private static final String FILTRAR_NO_PRESTATS = "SELECT * FROM llibre WHERE idLlibre NOT IN ("
@@ -64,9 +70,33 @@ public class PrestecDAOImpl implements PrestecDAO {
 
     }
 
+    @Override
+    public List<Llibre> filtrarTaulaAmbCondicio(String paraula, boolean esPrestat) {
+        List<Llibre> llibres = new ArrayList<>();
+        
+        String filtre = esPrestat ? FILTRAR_TAULES_AMB_CONDICIO_PRESTAT : FILTRAR_TAULES_AMB_CONDICIO_NO_PRESTAT;
+        
+        try ( PreparedStatement ps = conn.prepareStatement(filtre);) {
+            String searchTerm = "%" + paraula + "%";  // Reemplaza con tu término de búsqueda
+            ps.setString(1, searchTerm);
+            ps.setString(2, searchTerm);
+            ps.setString(3, searchTerm);
+
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Llibre llibre = mapResultSetToLlibre(rs);
+                llibres.add(llibre);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Manejar l'excepció segons la teva lògica d'aplicació
+        }
+
+        return llibres;
+    }
+
     private Llibre mapResultSetToLlibre(ResultSet rs) {
         Llibre llibre = new Llibre();
-
         try {
             llibre.setIdLlibre(rs.getInt("idLlibre"));
             llibre.setIdCodi(rs.getInt("idCodi"));
@@ -173,7 +203,7 @@ public class PrestecDAOImpl implements PrestecDAO {
         } catch (SQLException ex) {
             System.out.println(ex.getMessage());
         }
-       
+
         return false;
     }
 

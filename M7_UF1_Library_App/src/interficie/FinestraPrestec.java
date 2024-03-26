@@ -14,7 +14,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
@@ -116,7 +115,6 @@ public class FinestraPrestec extends JDialog {
         lbDataInici = new JLabel("Data inici prestec: ");
         lbDataIniciEscrit = new JLabel(calcularData(true));
 
-        int numDiesPrestec = prestecdi.obtenirDiesPrestec();
         lbDataRetorn = new JLabel("Data retorn prestec: ");
         lbDataRetornEscrit = new JLabel(calcularData(false));
 
@@ -231,6 +229,8 @@ public class FinestraPrestec extends JDialog {
                 return false; // Hacer que todas las celdas no sean editables
             }
         };
+        table.getTableHeader().setResizingAllowed(false);
+
 
         iniciarTaulaGeneral();
         // Agregar un ListSelectionListener para detectar la selección de filas
@@ -242,7 +242,7 @@ public class FinestraPrestec extends JDialog {
                     int selectedRow = table.getSelectedRow();
                     if (selectedRow != -1) {
                         _emplenarDadesUsuari(table.getValueAt(selectedRow, 1).toString());
-                        tfBuscador.setText(table.getValueAt(selectedRow, 1).toString());
+//                        tfBuscador.setText(table.getValueAt(selectedRow, 1).toString());
                     }
                 }
             }

@@ -91,9 +91,11 @@ public class Prestecs extends JDialog {
 
     private void filtreCombo() {
         cbFiltre.addActionListener(new ActionListener() {
+            @Override
             public void actionPerformed(ActionEvent e) {
                 try {
                     // Obtener el valor seleccionado
+                    tfFiltre.setText("");
                     String selectedValue = (String) cbFiltre.getSelectedItem();
                     switch (selectedValue) {
                         case "Tots":
@@ -146,6 +148,7 @@ public class Prestecs extends JDialog {
                         if (!prestecdi.comprovarSiEsprestat(idLlibre)) {
                             if (cbFiltre.getSelectedIndex() != 1) {
                                 new FinestraPrestec(owner, idLlibre);
+                                filtrar(1);
                             } else {
                                 JOptionPane.showMessageDialog(null, "No pots realitzar el prestec en un llibre prestat", "Error", JOptionPane.ERROR_MESSAGE);
                             }
@@ -168,10 +171,14 @@ public class Prestecs extends JDialog {
                 if (selectedRow != -1) {
                     int idLlibre = llibresTaulaActuals.get(selectedRow).getIdLlibre();
                     if (prestecdi.comprovarSiEsprestat(idLlibre)) {
-                        prestecdi.realitzarRetorn(idLlibre);
-                        eliminarLlibreLlistaPerId(idLlibre);
+                        if (prestecdi.realitzarRetorn(idLlibre)) {
+                            try {
+                                filtrar(1);
+                            } catch (SQLException ex) {
+                                ex.printStackTrace();
+                            }
+                        }
                         JOptionPane.showMessageDialog(null, "Retorn realitzat amb èxit", "Correcte", JOptionPane.INFORMATION_MESSAGE);
-                        _actualitzarTaula(llibresTaulaActuals);
                     } else {
                         JOptionPane.showMessageDialog(null, "Aquest llibre no està prestat", "Error", JOptionPane.ERROR_MESSAGE);
                     }
@@ -187,16 +194,16 @@ public class Prestecs extends JDialog {
         i++;
         panelSuperior.add(cbFiltre, gbc);
 
-        tfFiltre = new JTextField("Busqueda...");
+        tfFiltre = new JTextField();
         tfFiltre.setPreferredSize(dimensioTF);
-        tfFiltre.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                if (tfFiltre.getText().equals("Busqueda...")) {
-                    tfFiltre.setText("");
-                }
-            }
-        });
+//        tfFiltre.addMouseListener(new MouseAdapter() {
+//            @Override
+//            public void mouseClicked(MouseEvent e) {
+//                if (tfFiltre.getText().equals("Busqueda...")) {
+//                    tfFiltre.setText("");
+//                }
+//            }
+//        });
 
         tfFiltre.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -232,33 +239,66 @@ public class Prestecs extends JDialog {
 
         add(panelSuperior, BorderLayout.NORTH);
     }
-    
-    
-     private void eliminarLlibreLlistaPerId(int idLlibre){
-         
-         for (int i = 0; i < llibresTaulaActuals.size(); i++) {
-             if (llibresTaulaActuals.get(i).getIdLlibre() == idLlibre) llibresTaulaActuals.remove(i);
-         }
+
+    private void eliminarLlibreLlistaPerIdIActualitzar(int idLlibre) {
+
+        for (Llibre llibre : llibresTaulaActuals) {
+            if (llibre.getIdLlibre() == idLlibre) {
+                llibresTaulaActuals.remove(llibre);
+            }
+            break;
+        }
+//        for (int i = 0; i < llibresTaulaActuals.size(); i++) {
+//            if (llibresTaulaActuals.get(i).getIdLlibre() == idLlibre) {
+//                llibresTaulaActuals.remove(i);
+//            }
+//        }
+
+        _actualitzarTaula(llibresTaulaActuals);
+
+    }
+
+    private void printLlista(List<Llibre> llsita) {
+        for (Llibre llibre : llsita) {
+            System.out.println(llibre.getTitol());
+        }
+        System.out.println("--------------------------");
     }
 
     private void filtrar(int num) throws SQLException {
         PrestecDAOImpl pdi = new PrestecDAOImpl();
         List<Llibre> llista;
         switch (num) {
-            case 1:
-                if (_verificarLongitud()) {
-                    llista = pdi.filtrarTaula(tfFiltre.getText());
-                    _actualitzarTaula(llista);
-                } else {
-                    _iniciarTaulaGeneral();
+            case 1: // filtrar per la paraula del buscador
+//                if (_verificarLongitud()) {
+                String selectedValue = (String) cbFiltre.getSelectedItem();
+                switch (selectedValue) {
+                    case "Tots":
+                        llista = pdi.filtrarTaula(tfFiltre.getText());
+//                            printLlista(llista);
+                        _actualitzarTaula(llista);
+                        break;
+                    case "No prestats":
+                        llista = pdi.filtrarTaulaAmbCondicio(tfFiltre.getText(), false);
+//                            printLlista(llista);
+                        _actualitzarTaula(llista);
+                        break;
+                    case "Prestat":
+                        llista = pdi.filtrarTaulaAmbCondicio(tfFiltre.getText(), true);
+//                            printLlista(llista);
+                        _actualitzarTaula(llista);
+                        break;
                 }
+//                } else {
+//                    _iniciarTaulaGeneral();
+//                }
                 break;
-            case 2:
+            case 2: // filtrar llibres prestats
                 llista = pdi.filtrarPrestats(true);
                 _actualitzarTaula(llista);
                 break;
 
-            case 3:
+            case 3: // filtrar llibres no prestats
                 llista = pdi.filtrarPrestats(false);
                 _actualitzarTaula(llista);
                 break;
@@ -300,6 +340,9 @@ public class Prestecs extends JDialog {
             table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
         }
 
+//        for (Llibre llibre : llibresTaulaActuals) {
+//            System.out.println(llibre.getTitol());
+//        }
     }
 
     private void _iniciarTaulaGeneral() throws SQLException {
@@ -323,6 +366,8 @@ public class Prestecs extends JDialog {
                     return false; // Hacer que todas las celdas no sean editables
                 }
             };
+            table.getTableHeader().setResizingAllowed(false);
+
             _iniciarTaulaGeneral();
 
             scrollPane = new JScrollPane(table);
