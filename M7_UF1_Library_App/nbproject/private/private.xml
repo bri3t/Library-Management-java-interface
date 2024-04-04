@@ -3,11 +3,14 @@
     <editor-bookmarks xmlns="http://www.netbeans.org/ns/editor-bookmarks/2" lastBookmarkId="0"/>
     <open-files xmlns="http://www.netbeans.org/ns/projectui-open-files/2">
         <group>
+            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/logica/TipusUsuariDAOImpl.java</file>
+            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/model/Usuari.java</file>
             <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/gestiobiblioteca/GestioBiblio.java</file>
-            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/logica/PrestatgeDAOImpl.java</file>
             <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/logica/UsuariDAOImpl.java</file>
-            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/interficie/AltaUsuaris.java</file>
-            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/dao/UsuariDAO.java</file>
+            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/auth/Login.java</file>
+            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/dao/TipusUsuariDAO.java</file>
+            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/interficie/Prestecs.java</file>
+            <file>file:/C:/Users/arnau/Desktop/DAM2/M7/UF1/M7_UF1_Library_App/Library-Management-java-interface/M7_UF1_Library_App/src/logica/LoginDAOImpl.java</file>
         </group>
     </open-files>
 </project-private>

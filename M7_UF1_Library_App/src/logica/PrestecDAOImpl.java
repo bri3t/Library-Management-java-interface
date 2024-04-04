@@ -3,12 +3,11 @@ package logica;
 import basedades.ConnexioBD;
 import dao.PrestecDAO;
 import java.sql.Connection;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Calendar;
-import java.sql.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,9 +26,9 @@ public class PrestecDAOImpl implements PrestecDAO {
     private static final String FILTRAR_TAULES_AMB_CONDICIO_PRESTAT = "SELECT * FROM llibre WHERE (titol LIKE ? OR autor LIKE ? OR isbn LIKE ?) "
             + "AND idLlibre IN (SELECT idLlibre FROM prestec)";
 
-     private static final String FILTRAR_TAULES_AMB_CONDICIO_NO_PRESTAT = "SELECT * FROM llibre WHERE (titol LIKE ? OR autor LIKE ? OR isbn LIKE ?) "
+    private static final String FILTRAR_TAULES_AMB_CONDICIO_NO_PRESTAT = "SELECT * FROM llibre WHERE (titol LIKE ? OR autor LIKE ? OR isbn LIKE ?) "
             + "AND idLlibre NOT IN (SELECT idLlibre FROM prestec)";
-    
+
     private static final String REALITZAR_PRESTEC = "INSERT INTO prestec (idLlibre, idPersona, dataPrestec, dataDevolucio) VALUES (?,?,?,?)";
     private static final String OBTENIR_NUM_DIES = "SELECT tempsPrestec FROM configuracio";
     private static final String FILTRAR_NO_PRESTATS = "SELECT * FROM llibre WHERE idLlibre NOT IN ("
@@ -38,6 +37,7 @@ public class PrestecDAOImpl implements PrestecDAO {
             + "SELECT idLlibre FROM prestec)";
     private static final String COMPROVAR_SI_ES_PRESTAT = "SELECT COUNT(idLlibre) FROM prestec WHERE idLlibre = ?";
     private static final String RETORNAR_LLIBRE = "DELETE FROM prestec WHERE idLlibre = ?";
+    private static final String OBTENIR_DATA_DEVOLUCIO_PER_ID_LLIBRE = "SELECT dataDevolucio FROM prestec WHERE idLlibre = ?";
 
     public PrestecDAOImpl() {
         try {
@@ -73,9 +73,9 @@ public class PrestecDAOImpl implements PrestecDAO {
     @Override
     public List<Llibre> filtrarTaulaAmbCondicio(String paraula, boolean esPrestat) {
         List<Llibre> llibres = new ArrayList<>();
-        
+
         String filtre = esPrestat ? FILTRAR_TAULES_AMB_CONDICIO_PRESTAT : FILTRAR_TAULES_AMB_CONDICIO_NO_PRESTAT;
-        
+
         try ( PreparedStatement ps = conn.prepareStatement(filtre);) {
             String searchTerm = "%" + paraula + "%";  // Reemplaza con tu término de búsqueda
             ps.setString(1, searchTerm);
@@ -205,6 +205,26 @@ public class PrestecDAOImpl implements PrestecDAO {
         }
 
         return false;
+    }
+
+    @Override
+    public Date obtenirDataDevolucioPerIdLlibre(int idLlibre) {
+
+        Date data = null;
+
+        try {
+            PreparedStatement ps = conn.prepareStatement(OBTENIR_DATA_DEVOLUCIO_PER_ID_LLIBRE);
+            ps.setInt(1, idLlibre);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                data = rs.getDate("dataDevolucio");
+            }
+
+        } catch (SQLException ex) {
+        }
+
+        return data;
+
     }
 
 }

@@ -201,4 +201,6 @@ public class LlibreDAOImpl implements LlibreDAO {
         return quantitat > 0;
     }
 
+ 
+
 }

@@ -1,5 +1,6 @@
 package dao;
 
+import java.sql.Date;
 import java.util.List;
 import model.Llibre;
 import model.Prestec;
@@ -23,5 +24,7 @@ public interface PrestecDAO {
     boolean comprovarSiEsprestat(int idLlibre);
 
     boolean realitzarRetorn(int idLlibre);
+    
+    Date obtenirDataDevolucioPerIdLlibre(int idLlibre);
 
 }

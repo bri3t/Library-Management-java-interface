@@ -2,6 +2,7 @@ package interficie;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridBagConstraints;
@@ -9,10 +10,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -242,27 +243,19 @@ public class Prestecs extends JDialog {
 
     private void eliminarLlibreLlistaPerIdIActualitzar(int idLlibre) {
 
-        for (Llibre llibre : llibresTaulaActuals) {
-            if (llibre.getIdLlibre() == idLlibre) {
-                llibresTaulaActuals.remove(llibre);
+        try {
+            for (Llibre llibre : llibresTaulaActuals) {
+                if (llibre.getIdLlibre() == idLlibre) {
+                    llibresTaulaActuals.remove(llibre);
+                }
+                break;
             }
-            break;
+
+            _actualitzarTaula(llibresTaulaActuals);
+        } catch (SQLException ex) {
+            Logger.getLogger(Prestecs.class.getName()).log(Level.SEVERE, null, ex);
         }
-//        for (int i = 0; i < llibresTaulaActuals.size(); i++) {
-//            if (llibresTaulaActuals.get(i).getIdLlibre() == idLlibre) {
-//                llibresTaulaActuals.remove(i);
-//            }
-//        }
 
-        _actualitzarTaula(llibresTaulaActuals);
-
-    }
-
-    private void printLlista(List<Llibre> llsita) {
-        for (Llibre llibre : llsita) {
-            System.out.println(llibre.getTitol());
-        }
-        System.out.println("--------------------------");
     }
 
     private void filtrar(int num) throws SQLException {
@@ -270,28 +263,21 @@ public class Prestecs extends JDialog {
         List<Llibre> llista;
         switch (num) {
             case 1: // filtrar per la paraula del buscador
-//                if (_verificarLongitud()) {
                 String selectedValue = (String) cbFiltre.getSelectedItem();
                 switch (selectedValue) {
                     case "Tots":
                         llista = pdi.filtrarTaula(tfFiltre.getText());
-//                            printLlista(llista);
                         _actualitzarTaula(llista);
                         break;
                     case "No prestats":
                         llista = pdi.filtrarTaulaAmbCondicio(tfFiltre.getText(), false);
-//                            printLlista(llista);
                         _actualitzarTaula(llista);
                         break;
                     case "Prestat":
                         llista = pdi.filtrarTaulaAmbCondicio(tfFiltre.getText(), true);
-//                            printLlista(llista);
                         _actualitzarTaula(llista);
                         break;
                 }
-//                } else {
-//                    _iniciarTaulaGeneral();
-//                }
                 break;
             case 2: // filtrar llibres prestats
                 llista = pdi.filtrarPrestats(true);
@@ -321,7 +307,23 @@ public class Prestecs extends JDialog {
 
     }
 
-    private void _actualitzarTaula(List<Llibre> llistaLlibres) {
+    private boolean esForaDeTermini(Llibre llibre) {
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.DATE, 0);
+
+        Date d = calendar.getTime();
+        java.sql.Date dataSql = new java.sql.Date(d.getTime());
+        java.sql.Date fechaDevolucion = prestecdi.obtenirDataDevolucioPerIdLlibre(llibre.getIdLlibre());
+        
+
+        return fechaDevolucion != null && fechaDevolucion.before(dataSql);
+        // La fecha de devolución es posterior a la fecha actual más el tiempo de sanción
+
+    }
+
+    private void _actualitzarTaula(List<Llibre> llistaLlibres) throws SQLException {
+        LlibreDAOImpl ldi = new LlibreDAOImpl();
+
         llibresTaulaActuals = llistaLlibres;
         data = new Object[llistaLlibres.size()][columnesTaula.length];
         for (int i = 0; i < llistaLlibres.size(); i++) {
@@ -333,11 +335,34 @@ public class Prestecs extends JDialog {
 
         model.setDataVector(data, columnesTaula);
         table.getTableHeader().setReorderingAllowed(false);
-        DefaultTableCellRenderer centerRenderer = new DefaultTableCellRenderer();
-        centerRenderer.setHorizontalAlignment(JLabel.CENTER);
+
+        // Renderizador de celdas personalizado
+        DefaultTableCellRenderer renderer = new DefaultTableCellRenderer() {
+            @Override
+            public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+                Component c = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+                // Verificar si la fila tiene el atributo "sancionado" en true
+                int idLlibre = llibresTaulaActuals.get(row).getIdLlibre();
+
+                Llibre llibre = ldi.obtenirPerId(idLlibre);
+
+                // Verifica si es un libro prestado y si esta fuera de terminio, si es el caso, pondra color de fondo en rojo
+                c.setBackground((prestecdi.comprovarSiEsprestat(idLlibre) && esForaDeTermini(llibre)) ? Color.RED : Color.WHITE);
+
+                return c;
+            }
+        };
+
+        // Aplicar el renderizador a todas las columnas
+        for (int i = 0; i < table.getColumnCount(); i++) {
+            table.getColumnModel().getColumn(i).setCellRenderer(renderer);
+        }
+
+        renderer.setHorizontalAlignment(JLabel.CENTER);
 
         for (int i = 0; i < table.getColumnCount(); i++) {
-            table.getColumnModel().getColumn(i).setCellRenderer(centerRenderer);
+            table.getColumnModel().getColumn(i).setCellRenderer(renderer);
         }
 
 //        for (Llibre llibre : llibresTaulaActuals) {
