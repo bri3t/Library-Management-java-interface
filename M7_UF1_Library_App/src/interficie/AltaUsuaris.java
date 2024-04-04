@@ -143,7 +143,7 @@ public class AltaUsuaris extends JDialog {
                     Usuari usuari = new Usuari();
                     usuari.setNom(nom);
                     usuari.setPassword(contrasena);
-                    System.out.println(contrasena);
+//                    System.out.println(contrasena);
                     usuari.setTipusUsuari(idTipusUsuariPerNom);
 
                     if (num == 1) {

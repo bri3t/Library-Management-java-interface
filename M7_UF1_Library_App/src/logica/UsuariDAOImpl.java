@@ -85,7 +85,7 @@ public class UsuariDAOImpl implements UsuariDAO {
                 sqlActualitzar = "UPDATE  usuaris SET nomUsuari = ?, password = ?,  idTipusUsuari = ? WHERE idUsuari = ?";
             }
 
-            System.out.println(sqlActualitzar);
+//            System.out.println(sqlActualitzar);
             PreparedStatement ps = conn.prepareStatement(sqlActualitzar);
             ps.setString(1, usuari.getNom());
             ps.setString(2, usuari.getPassword());
