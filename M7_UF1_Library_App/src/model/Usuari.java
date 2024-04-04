@@ -10,6 +10,7 @@ public class Usuari {
     private String nom;
     private String password;
     private int tipusUsuari;
+    private boolean sansionat;
     
 
     public Usuari() {
@@ -19,9 +20,18 @@ public class Usuari {
         this.nom = nom;
         this.password = password;
         this.tipusUsuari = tipusUsuari;
+        this.sansionat = false;
     }
-    
-    
+
+    public boolean isSansionat() {
+        return sansionat;
+    }
+
+    public void setSansionat(boolean sansionat) {
+        this.sansionat = sansionat;
+    }
+
+
 
     public int getIdUsuari() {
         return idUsuari;

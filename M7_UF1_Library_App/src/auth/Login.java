@@ -5,13 +5,24 @@ import java.awt.Dimension;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import static javax.swing.WindowConstants.EXIT_ON_CLOSE;
+import logica.LoginDAOImpl;
+import model.Usuari;
+import gestiobiblioteca.GestioBiblio;
+import java.awt.Frame;
+import logica.TipusUsuariDAOImpl;
 
 /**
  *
@@ -29,11 +40,18 @@ public class Login extends JFrame {
     JTextField tfUsuari;
     JPasswordField pfPassword;
 
-    JButton btn;
+    JButton btnLogin;
+    
 
     public Login() {
         iniciarPanel();
         iniciarPantalla();
+    }
+    
+    
+    private void _buidarCaselles(){
+        tfUsuari.setText("");
+        pfPassword.setText("");
     }
 
     private void iniciarPanel() {
@@ -65,12 +83,49 @@ public class Login extends JFrame {
         gbc.gridy = 1;
         panel.add(pfPassword, gbc);
 
-        btn = new JButton("Iniciar sessio");
-        btn.setPreferredSize(new Dimension(150, 25));
+        btnLogin = new JButton("Iniciar sessio");
+        btnLogin.setPreferredSize(new Dimension(150, 25));
+        btnLogin.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                try {
+
+                    Usuari usuari = new Usuari();
+
+                    LoginDAOImpl ldi = new LoginDAOImpl();
+                    TipusUsuariDAOImpl tudi = new TipusUsuariDAOImpl();
+
+                    String user = tfUsuari.getText();
+                    String contrasena = new String(pfPassword.getPassword());
+
+                    usuari = ldi.verificarLogin(user, contrasena);
+
+                    if (usuari != null) {
+
+                        int idPrivilegiUsuari = tudi.obtenirIdPrivilegoPerIdTipusUsuari(usuari.getTipusUsuari());
+                        int idPrivilegiAdministrador = tudi.obtenirIdPrivilegiAdministrador();
+//                        System.out.println(idPrivilegiUsuari + " " + idPrivilegiAdministrador);
+
+                        boolean esAdmin = idPrivilegiUsuari == idPrivilegiAdministrador;
+
+                        new GestioBiblio(esAdmin, usuari, (Frame) getOwner()).setVisible(true);
+                        
+                    } else {
+                        JOptionPane.showMessageDialog(null, "Dades d'usuari incorrectes", "Error", JOptionPane.ERROR_MESSAGE);
+                        _buidarCaselles();
+                    }
+
+                } catch (SQLException ex) {
+                    Logger.getLogger(Login.class.getName()).log(Level.SEVERE, null, ex);
+                }
+            }
+
+        });
+
         gbc.gridx = 1;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.CENTER;
-        panel.add(btn, gbc);
+        panel.add(btnLogin, gbc);
 
         add(panel);
     }

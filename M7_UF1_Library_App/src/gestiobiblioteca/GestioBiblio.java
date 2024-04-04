@@ -6,12 +6,13 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.sql.SQLException;
+import model.Usuari;
 
 /**
  *
  * @author jaleo
  */
-public class GestioBiblio extends JFrame {
+public class GestioBiblio extends JDialog {
 
     private JMenuItem altaLlibreMenuItem, consultaLlibreMenuItem;
     private JMenuItem altaUsuariMenuItem, consultaUsuariMenuItem;
@@ -19,11 +20,15 @@ public class GestioBiblio extends JFrame {
     private JMenuItem altaBaldaMenuItem, consultaBaldaMenuItem;
     private JMenuItem altaTipusFonsMenuItem, consultaFonsMenuItem;
     private JMenuItem prestecMenuItem;
+    
+    private final Usuari USUARIACTIU;
 
-    public GestioBiblio() {
+    public GestioBiblio(boolean esAdmin, Usuari usuari, Frame owner) {
+        super(owner);
+        USUARIACTIU = usuari;
         setTitle("Gestió Biblioteca");
         setSize(405, 200);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         JMenuBar menuBar = new JMenuBar();
         setJMenuBar(menuBar);
@@ -35,12 +40,14 @@ public class GestioBiblio extends JFrame {
         llibresMenu.add(consultaLlibreMenuItem);
         menuBar.add(llibresMenu);
 
-        JMenu usuarisMenu = new JMenu("Usuaris");
-        altaUsuariMenuItem = new JMenuItem("Alta");
-        consultaUsuariMenuItem = new JMenuItem("Consulta");
-        usuarisMenu.add(altaUsuariMenuItem);
-        usuarisMenu.add(consultaUsuariMenuItem);
-        menuBar.add(usuarisMenu);
+        if (esAdmin) {
+            JMenu usuarisMenu = new JMenu("Usuaris");
+            altaUsuariMenuItem = new JMenuItem("Alta");
+            consultaUsuariMenuItem = new JMenuItem("Consulta");
+            usuarisMenu.add(altaUsuariMenuItem);
+            usuarisMenu.add(consultaUsuariMenuItem);
+            menuBar.add(usuarisMenu);
+        }
 
         JMenu prestatgesmenu = new JMenu("Prestatges");
         altaPrestatgeMenuItem = new JMenuItem("Alta");
@@ -87,24 +94,27 @@ public class GestioBiblio extends JFrame {
             }
         });
 
-        //item usuari
-        altaUsuariMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                try {
-                    new AltaUsuaris((Frame) getOwner());
-                } catch (SQLException ex) {
-                    ex.printStackTrace();
+        if (esAdmin) {
+            //item usuari
+            altaUsuariMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    try {
+                        new AltaUsuaris((Frame) getOwner());
+                    } catch (SQLException ex) {
+                        ex.printStackTrace();
+                    }
                 }
-            }
-        });
+            });
 
-        consultaUsuariMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                new ConsultaUsuaris((Frame) getOwner());
-            }
-        });
+            consultaUsuariMenuItem.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    new ConsultaUsuaris((Frame) getOwner());
+                }
+            });
+
+        }
 
         // item Prestatge
         altaPrestatgeMenuItem.addActionListener(new ActionListener() {
@@ -173,12 +183,12 @@ public class GestioBiblio extends JFrame {
 
     }
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new GestioBiblio().setVisible(true);
-            }
-        });
-    }
+//    public static void main(String[] args) {
+//        SwingUtilities.invokeLater(new Runnable() {
+//            @Override
+//            public void run() {
+//                new GestioBiblio(true, new Usuari(), new Frame()).setVisible(true);
+//            }
+//        });
+//    }
 }

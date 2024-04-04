@@ -16,5 +16,11 @@ public interface TipusUsuariDAO {
     public String[] obtenirNomsColumnes();
 
     public int obtenirIdPerNom(String nom);
-
+    
+    public int obtenirIdPrivilegiPerIdTipus(int id);
+    
+    int obtenirIdPrivilegoPerIdTipusUsuari(int idTipusUsuari);
+    
+    int obtenirIdPrivilegiAdministrador();
+    
 }

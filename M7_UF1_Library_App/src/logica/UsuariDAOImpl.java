@@ -26,7 +26,6 @@ public class UsuariDAOImpl implements UsuariDAO {
     private static final String OBTENIR_USUARI_PER_ID = "SELECT * FROM usuaris WHERE idUsuari = ?";
     private static final String AFEGIR_USUARI = "INSERT INTO usuaris (nomUsuari, password, idTipusUsuari) VALUES (?, MD5(?), ?)";
     private static final String ESBORRAR_USUARI = "DELETE FROM usuaris WHERE idUsuari = ?";
-    private static final String OBTENIR_ID_PER_NOM = "SELECT idusuari FROM usuaris WHERE nomUsuari = ?";
     private static final String COMPROVAR_USUARI = "SELECT count(*) quantitat FROM usuaris WHERE nomUsuari = ?";
 
     @Override
