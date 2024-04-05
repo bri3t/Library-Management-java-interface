@@ -315,6 +315,8 @@ public class Prestecs extends JDialog {
         java.sql.Date dataSql = new java.sql.Date(d.getTime());
         java.sql.Date fechaDevolucion = prestecdi.obtenirDataDevolucioPerIdLlibre(llibre.getIdLlibre());
         
+        System.out.println(fechaDevolucion);
+        System.out.println(dataSql);
 
         return fechaDevolucion != null && fechaDevolucion.before(dataSql);
         // La fecha de devolución es posterior a la fecha actual más el tiempo de sanción
