@@ -17,4 +17,6 @@ public interface PersonalDAO {
 
     Persona obtenirPersonaPerNumCarnet(String numeroCarnet);
 
+    boolean marcatSansionatPerId(int idPersona);
+
 }

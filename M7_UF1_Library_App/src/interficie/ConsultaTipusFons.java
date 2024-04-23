@@ -66,8 +66,8 @@ public class ConsultaTipusFons extends JDialog {
 
             btnModificar = new JButton("Modificar");
             btnModificar.setPreferredSize(d);
-            
-             btnModificar.addActionListener(
+
+            btnModificar.addActionListener(
                     new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
@@ -82,7 +82,7 @@ public class ConsultaTipusFons extends JDialog {
 
             }
             );
-            
+
             panelBotones.add(btnModificar, BorderLayout.WEST);
 
             btnBaixa = new JButton("Baixa");
@@ -94,7 +94,7 @@ public class ConsultaTipusFons extends JDialog {
                     int selectedRow = table.getSelectedRow();
                     if (selectedRow != -1) {
                         try {
-                            
+
                             int idTipusFons = Integer.parseInt(table.getValueAt(selectedRow, 0).toString());
                             TipusFonsDAOImpl tfi = new TipusFonsDAOImpl();
                             if (tfi.esborrar(idTipusFons)) {
@@ -117,7 +117,7 @@ public class ConsultaTipusFons extends JDialog {
             add(panelBotones, BorderLayout.SOUTH);
 
             setSize(500, 250);
-            setLocationRelativeTo(this);
+            setLocationRelativeTo(null);
             setResizable(false);
             setVisible(true);
 

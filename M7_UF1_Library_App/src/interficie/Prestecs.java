@@ -21,6 +21,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -34,6 +35,7 @@ import javax.swing.event.DocumentListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import javax.swing.table.DefaultTableModel;
 import logica.LlibreDAOImpl;
+import logica.PersonalDAOImpl;
 import logica.PrestecDAOImpl;
 import model.Llibre;
 
@@ -53,7 +55,7 @@ public class Prestecs extends JDialog {
 
     // llistes de noms
     String[] llistaNomsBotons = {"Nou Prestec", "Modificar", "Retorn"};
-    String[] nomsFiltres = {"Tots", "Prestat", "No prestats"};
+    String[] nomsFiltres = {"Tots", "Prestat", "No prestats", "Incidències"};
     String[] columnesTaula = {"Títol", "Autor", "ISBN"};
 
     // taula
@@ -81,8 +83,10 @@ public class Prestecs extends JDialog {
     //altres
     List<Llibre> llibresTaulaActuals;
     PrestecDAOImpl prestecdi = new PrestecDAOImpl();
+    PersonalDAOImpl personaldi = new PersonalDAOImpl();
 
     public Prestecs(Frame owner) {
+
         super(owner, true);
         this.owner = owner;
         montar();
@@ -106,6 +110,9 @@ public class Prestecs extends JDialog {
                             filtrar(3);
                             break;
                         case "Prestat":
+                            filtrar(2);
+                            break;
+                        case "Incidències":
                             filtrar(2);
                             break;
                     }
@@ -187,6 +194,16 @@ public class Prestecs extends JDialog {
             }
         });
 
+        btnModificar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow != -1) {
+                    new ModificarPrestec( llibresTaulaActuals.get(selectedRow).getIdLlibre());
+                }
+            }
+        });
+
         cbFiltre = new JComboBox(nomsFiltres);
         cbFiltre.setPreferredSize(dimensionItems);
 
@@ -197,14 +214,6 @@ public class Prestecs extends JDialog {
 
         tfFiltre = new JTextField();
         tfFiltre.setPreferredSize(dimensioTF);
-//        tfFiltre.addMouseListener(new MouseAdapter() {
-//            @Override
-//            public void mouseClicked(MouseEvent e) {
-//                if (tfFiltre.getText().equals("Busqueda...")) {
-//                    tfFiltre.setText("");
-//                }
-//            }
-//        });
 
         tfFiltre.getDocument().addDocumentListener(new DocumentListener() {
             @Override
@@ -277,6 +286,10 @@ public class Prestecs extends JDialog {
                         llista = pdi.filtrarTaulaAmbCondicio(tfFiltre.getText(), true);
                         _actualitzarTaula(llista);
                         break;
+                    case "Incidències":
+                        llista = pdi.filtrarTaulaAmbCondicio(tfFiltre.getText(), true);
+                        _actualitzarTaula(llista);
+                        break;
                 }
                 break;
             case 2: // filtrar llibres prestats
@@ -296,10 +309,6 @@ public class Prestecs extends JDialog {
         }
     }
 
-    private boolean _verificarLongitud() {
-        return tfFiltre.getText().length() > 2;
-    }
-
     private void montar() {
         setLayout(new BorderLayout());
         _iniciarElements();
@@ -314,12 +323,14 @@ public class Prestecs extends JDialog {
         Date d = calendar.getTime();
         java.sql.Date dataSql = new java.sql.Date(d.getTime());
         java.sql.Date fechaDevolucion = prestecdi.obtenirDataDevolucioPerIdLlibre(llibre.getIdLlibre());
-        
-        System.out.println(fechaDevolucion);
-        System.out.println(dataSql);
 
-        return fechaDevolucion != null && fechaDevolucion.before(dataSql);
-        // La fecha de devolución es posterior a la fecha actual más el tiempo de sanción
+        boolean esSansionat = fechaDevolucion != null && fechaDevolucion.before(dataSql);
+
+        if (esSansionat) {
+            personaldi.marcatSansionatPerId(prestecdi.obtenirIdPersonalPerIdLlibre(llibre.getIdLlibre()));
+        }
+
+        return esSansionat;
 
     }
 

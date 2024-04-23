@@ -64,6 +64,7 @@ public class AltaLlibre extends JDialog {
         montar("REGISTRAR");
         setTitle("Alta Llibre");
         onClickInserirModificar(1, null, 0);
+        setLocationRelativeTo(null);
         iniciarVista();
     }
 

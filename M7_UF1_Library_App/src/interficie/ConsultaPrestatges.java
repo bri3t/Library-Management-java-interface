@@ -117,7 +117,7 @@ public class ConsultaPrestatges extends JDialog {
             add(panelBotones, BorderLayout.SOUTH);
 
             setSize(500, 250);
-            setLocationRelativeTo(this);
+            setLocationRelativeTo(null);
             setResizable(false);
             setVisible(true);
 

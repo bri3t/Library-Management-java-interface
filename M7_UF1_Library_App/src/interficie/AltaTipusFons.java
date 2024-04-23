@@ -49,6 +49,7 @@ public class AltaTipusFons extends JDialog {
         super(owner, true);
         montar("REGISTRAR");
         onClickInserirModificar(1, null, 0);
+        setLocationRelativeTo(null);
         iniciarVista();
     }
 

@@ -9,10 +9,21 @@ public class Persona {
     
     private int idPersonal, idTipususuari, numeroCarnet;
     private String nom, cognom;
+    boolean sansionat;
+    
 
     public Persona() {
     }
 
+    public boolean isSansionat() {
+        return sansionat;
+    }
+
+    public void setSansionat(boolean sansionat) {
+        this.sansionat = sansionat;
+    }
+
+    
     public int getIdPersonal() {
         return idPersonal;
     }

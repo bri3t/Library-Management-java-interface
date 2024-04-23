@@ -138,8 +138,8 @@ public class ConsultaLlibres extends JDialog {
 
             setSize(
                     700, 250);
-            setLocationRelativeTo(
-                    this);
+            setLocationRelativeTo(null);
+
             setResizable(
                     false);
             setVisible(

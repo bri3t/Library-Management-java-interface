@@ -8,6 +8,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import model.Persona;
 
 /**
@@ -19,11 +21,16 @@ public class PersonalDAOImpl implements PersonalDAO {
     private static final String OBTENIR_TOTS_PERSONAL = "SELECT * FROM personal";
     private static final String OBTENIR_PERSONA_PER_NUM_CARNET = "SELECT* FROM personal WHERE numeroCarnet LIKE ?";
     private static final String OBTENIR_PERSONA_PER_ID = "SELECT * FROM personal WHERE idPersonal = ?";
+    private static final String MARCAR_SANSIONAT_PER_ID = "UPDATE personal SET sancionat = 1 WHERE idPersonal = ?";
 
     private Connection conn;
 
-    public PersonalDAOImpl() throws SQLException {
-        this.conn = ConnexioBD.obtenirConnexio();
+    public PersonalDAOImpl() {
+        try {
+            this.conn = ConnexioBD.obtenirConnexio();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override
@@ -50,6 +57,7 @@ public class PersonalDAOImpl implements PersonalDAO {
             persona.setCognom(rs.getString("cognom"));
             persona.setIdTipususuari(rs.getInt("idTipusUsuari"));
             persona.setNumeroCarnet(rs.getInt("numeroCarnet"));
+            persona.setSansionat(rs.getBoolean("sancionat"));
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
@@ -61,7 +69,7 @@ public class PersonalDAOImpl implements PersonalDAO {
     public List<Persona> obtenirIdPerNumCarnet(String numeroCarnet) {
         List<Persona> llista = new ArrayList<>();
         Persona persona = new Persona();
-        
+
         try {
             PreparedStatement ps = conn.prepareStatement(OBTENIR_PERSONA_PER_NUM_CARNET);
             String searchTerm = numeroCarnet + "%";  // Reemplaza con tu término de búsqueda
@@ -80,7 +88,7 @@ public class PersonalDAOImpl implements PersonalDAO {
 
         return llista;
     }
-    
+
     @Override
     public Persona obtenirPersonaPerNumCarnet(String numeroCarnet) {
         Persona persona = new Persona();
@@ -100,7 +108,6 @@ public class PersonalDAOImpl implements PersonalDAO {
 
         return persona;
     }
-    
 
     @Override
     public List<Persona> obtenirIdPerId(int idPersonal) {
@@ -123,6 +130,19 @@ public class PersonalDAOImpl implements PersonalDAO {
         }
 
         return llista;
+    }
+
+    @Override
+    public boolean marcatSansionatPerId(int idPersona) {
+        try {
+            PreparedStatement ps = conn.prepareStatement(MARCAR_SANSIONAT_PER_ID);
+            ps.setInt(1, idPersona);
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;  // Retorna true si se actualizó al menos una fila
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
 }

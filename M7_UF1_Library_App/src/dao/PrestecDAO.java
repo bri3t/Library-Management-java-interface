@@ -24,7 +24,13 @@ public interface PrestecDAO {
     boolean comprovarSiEsprestat(int idLlibre);
 
     boolean realitzarRetorn(int idLlibre);
-    
+
     Date obtenirDataDevolucioPerIdLlibre(int idLlibre);
+
+    Date obtenirDataPrestecPerIdLlibre(int idLlibre);
+
+    int obtenirIdPersonalPerIdLlibre(int idLlibre);
+    
+    boolean modificarDataDevolucio(Date data, int idLlibre);
 
 }

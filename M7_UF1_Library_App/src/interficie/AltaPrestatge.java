@@ -47,6 +47,7 @@ public class AltaPrestatge extends JDialog {
         montar("REGISTRAR");
         setTitle("Alta Prestatge");
         onClickInserirModificar(1, null, 0);
+        setLocationRelativeTo(null);
         iniciarVista();
     }
 

@@ -104,10 +104,10 @@ public class Login extends JFrame {
 
                         int idPrivilegiUsuari = tudi.obtenirIdPrivilegoPerIdTipusUsuari(usuari.getTipusUsuari());
                         int idPrivilegiAdministrador = tudi.obtenirIdPrivilegiAdministrador();
-//                        System.out.println(idPrivilegiUsuari + " " + idPrivilegiAdministrador);
 
                         boolean esAdmin = idPrivilegiUsuari == idPrivilegiAdministrador;
 
+                        dispose();
                         new GestioBiblio(esAdmin, usuari, (Frame) getOwner()).setVisible(true);
                         
                     } else {
@@ -134,8 +134,9 @@ public class Login extends JFrame {
         setTitle("Login");
         setMinimumSize(new Dimension(WFRAME, HFRAME));
         setResizable(false);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        getContentPane().setBackground(Color.ORANGE);
+        getContentPane().setBackground(Color.WHITE);
         setVisible(true);
     }
 

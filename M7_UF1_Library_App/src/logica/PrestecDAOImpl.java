@@ -29,15 +29,18 @@ public class PrestecDAOImpl implements PrestecDAO {
     private static final String FILTRAR_TAULES_AMB_CONDICIO_NO_PRESTAT = "SELECT * FROM llibre WHERE (titol LIKE ? OR autor LIKE ? OR isbn LIKE ?) "
             + "AND idLlibre NOT IN (SELECT idLlibre FROM prestec)";
 
-    private static final String REALITZAR_PRESTEC = "INSERT INTO prestec (idLlibre, idPersona, dataPrestec, dataDevolucio) VALUES (?,?,?,?)";
-    private static final String OBTENIR_NUM_DIES = "SELECT tempsPrestec FROM configuracio";
     private static final String FILTRAR_NO_PRESTATS = "SELECT * FROM llibre WHERE idLlibre NOT IN ("
             + "SELECT idLlibre FROM prestec)";
+    private static final String REALITZAR_PRESTEC = "INSERT INTO prestec (idLlibre, idPersona, dataPrestec, dataDevolucio) VALUES (?,?,?,?)";
     private static final String FILTRAR_PRESTATS = "SELECT * FROM llibre WHERE idLlibre IN ("
             + "SELECT idLlibre FROM prestec)";
-    private static final String COMPROVAR_SI_ES_PRESTAT = "SELECT COUNT(idLlibre) FROM prestec WHERE idLlibre = ?";
     private static final String RETORNAR_LLIBRE = "DELETE FROM prestec WHERE idLlibre = ?";
+    private static final String COMPROVAR_SI_ES_PRESTAT = "SELECT COUNT(idLlibre) FROM prestec WHERE idLlibre = ?";
+    private static final String OBTENIR_NUM_DIES = "SELECT tempsPrestec FROM configuracio";
     private static final String OBTENIR_DATA_DEVOLUCIO_PER_ID_LLIBRE = "SELECT dataDevolucio FROM prestec WHERE idLlibre = ?";
+    private static final String OBTENIR_DATA_PRESTEC_PER_ID_LLIBRE = "SELECT dataPrestec FROM prestec WHERE idLlibre = ?";
+    private static final String OBTENIR_IDPERSONA_PER_IDLLIBRE = "SELECT idPersona FROM prestec WHERE idLlibre = ?";
+    private final String MODIFICAR_DATA_DEVOLUCIO = "UPDATE prestec SET dataDevolucio = ? where idLlibre = ?";
 
     public PrestecDAOImpl() {
         try {
@@ -89,7 +92,6 @@ public class PrestecDAOImpl implements PrestecDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            // Manejar l'excepció segons la teva lògica d'aplicació
         }
 
         return llibres;
@@ -154,9 +156,7 @@ public class PrestecDAOImpl implements PrestecDAO {
             filtre = FILTRAR_PRESTATS;
         }
 
-//        System.out.println(filtre);
         try ( PreparedStatement ps = conn.prepareStatement(filtre);) {
-//            System.out.println(ps);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
                 Llibre llibre = mapResultSetToLlibre(rs);
@@ -164,7 +164,6 @@ public class PrestecDAOImpl implements PrestecDAO {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            // Manejar l'excepció segons la teva lògica d'aplicació
         }
 
 //        for (Llibre llibre : llibres) {
@@ -209,22 +208,60 @@ public class PrestecDAOImpl implements PrestecDAO {
 
     @Override
     public Date obtenirDataDevolucioPerIdLlibre(int idLlibre) {
+        return obtenirData(idLlibre, OBTENIR_DATA_DEVOLUCIO_PER_ID_LLIBRE);
+    }
 
+    @Override
+    public Date obtenirDataPrestecPerIdLlibre(int idLlibre) {
+        return obtenirData(idLlibre, OBTENIR_DATA_PRESTEC_PER_ID_LLIBRE);
+    }
+
+    private Date obtenirData(int idLlibre, String query) {
         Date data = null;
 
+        String dataARecollir = query.equals(OBTENIR_DATA_PRESTEC_PER_ID_LLIBRE) ? "dataPrestec" : "dataDevolucio";
         try {
-            PreparedStatement ps = conn.prepareStatement(OBTENIR_DATA_DEVOLUCIO_PER_ID_LLIBRE);
+            PreparedStatement ps = conn.prepareStatement(query);
             ps.setInt(1, idLlibre);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                data = rs.getDate("dataDevolucio");
+                data = rs.getDate(dataARecollir);
             }
 
         } catch (SQLException ex) {
         }
 
         return data;
+    }
 
+    @Override
+    public int obtenirIdPersonalPerIdLlibre(int idLibro) {
+        try ( PreparedStatement ps = conn.prepareStatement(OBTENIR_IDPERSONA_PER_IDLLIBRE)) {
+            ps.setInt(1, idLibro);
+            try ( ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("idPersona");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;  // Retorna -1 o algún código que indique que no se encontró el dato
+    }
+
+    @Override
+    public boolean modificarDataDevolucio(Date data, int idLlibre) {
+        try {
+            System.out.println(data);
+            PreparedStatement ps = conn.prepareStatement(MODIFICAR_DATA_DEVOLUCIO);
+            ps.setDate(1, data);
+            ps.setInt(2, idLlibre);
+            ps.executeUpdate();
+            return true;
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+        return false;
     }
 
 }

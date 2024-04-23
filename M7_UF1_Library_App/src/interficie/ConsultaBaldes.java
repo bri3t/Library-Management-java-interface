@@ -117,8 +117,8 @@ public class ConsultaBaldes extends JDialog {
             add(panelBotones, BorderLayout.SOUTH);
 
             setSize(500, 250);
-            setLocationRelativeTo(this);
             setResizable(false);
+            setLocationRelativeTo(null);
             setVisible(true);
 
         } catch (SQLException ex) {

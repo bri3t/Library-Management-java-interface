@@ -54,6 +54,7 @@ public class AltaUsuaris extends JDialog {
         montar("REGISTRAR");
         setTitle("Alta Usuari");
         onClickInserirModificar(1, null, 0);
+        setLocationRelativeTo(null);
         iniciarVista();
     }
 
@@ -159,7 +160,6 @@ public class AltaUsuaris extends JDialog {
                     } else {
                         usuari.setIdUsuari(usuariModificar.getIdUsuari());
                         if (udi.actualitzar(usuari, usuariModificar.getNom(), contrasena)) {
-                            JOptionPane.showMessageDialog(null, "Registre exit", "Correcte", JOptionPane.INFORMATION_MESSAGE);
                             JOptionPane.showMessageDialog(null, "Modificacio realitzada amb èxit", "Correcte", JOptionPane.INFORMATION_MESSAGE);
                             model.setValueAt(String.valueOf(usuari.getIdUsuari()), selectedRow, 0);
                             model.setValueAt(nom, selectedRow, 1);

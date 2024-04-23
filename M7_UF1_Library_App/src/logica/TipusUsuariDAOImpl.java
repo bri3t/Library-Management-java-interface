@@ -9,6 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 import model.TipusUsuaris;
 import java.sql.Connection;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -26,8 +28,12 @@ public class TipusUsuariDAOImpl implements TipusUsuariDAO {
 
     private Connection con;
 
-    public TipusUsuariDAOImpl() throws SQLException {
-        this.con = ConnexioBD.obtenirConnexio();
+    public TipusUsuariDAOImpl() {
+        try {
+            this.con = ConnexioBD.obtenirConnexio();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
     }
 
     @Override

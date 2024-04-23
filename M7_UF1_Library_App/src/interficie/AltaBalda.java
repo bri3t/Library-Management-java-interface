@@ -107,7 +107,7 @@ public class AltaBalda extends JDialog {
 
     private void iniciarVista() {
         setSize(350, 250);
-        setLocationRelativeTo(this);
+        setLocationRelativeTo(null);
         setTitle("Alta Balda");
         setResizable(false);
         setVisible(true);

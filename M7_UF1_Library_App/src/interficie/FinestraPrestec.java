@@ -14,7 +14,6 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
-import java.time.LocalTime;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -45,9 +44,9 @@ import model.Prestec;
  */
 public class FinestraPrestec extends JDialog {
 
-    public static void main(String[] args) throws SQLException {
-        new FinestraPrestec();
-    }
+//    public static void main(String[] args) throws SQLException {
+//        new FinestraPrestec();
+//    }
 
     // panels
     JPanel panelSuperior, panelCentral, panelInferior;
@@ -58,7 +57,7 @@ public class FinestraPrestec extends JDialog {
             lbDataInici, lbDataIniciEscrit,
             lbDataRetorn, lbDataRetornEscrit,
             lbIds;
-    JCalendar calendar = new JCalendar();
+    JButton showInfo;
 
     // panel central
     // taula
@@ -85,6 +84,7 @@ public class FinestraPrestec extends JDialog {
     // altres
     int idLlibreAFerPrestec;
     List<Persona> llistaPersonesActuals;
+    Persona personaSeleccionada = new Persona();
 
     Prestec p = new Prestec();
 
@@ -111,6 +111,16 @@ public class FinestraPrestec extends JDialog {
 
         lbCongom = new JLabel("Cognom: ");
         lbCognomEscrit = new JLabel("......");
+
+        showInfo = new JButton("Mostrar Info");
+        showInfo.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (table.getSelectedRow() != -1) {
+                    new PersonaInfoDialog((Frame) getOwner(), personaSeleccionada);
+                }
+            }
+        });
 
         lbDataInici = new JLabel("Data inici prestec: ");
         lbDataIniciEscrit = new JLabel(calcularData(true));
@@ -146,23 +156,28 @@ public class FinestraPrestec extends JDialog {
         gbc.gridx = 0;
         gbc.gridy = 2;
         gbc.anchor = GridBagConstraints.LINE_START;
+        panelSuperior.add(showInfo, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 3;
+        gbc.anchor = GridBagConstraints.LINE_START;
         panelSuperior.add(lbDataInici, gbc);
         gbc.gridx = 1;
-        gbc.gridy = 2;
+        gbc.gridy = 3;
         gbc.anchor = GridBagConstraints.LINE_START;
         panelSuperior.add(lbDataIniciEscrit, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.LINE_START;
         panelSuperior.add(lbDataRetorn, gbc);
         gbc.gridx = 1;
-        gbc.gridy = 3;
+        gbc.gridy = 4;
         gbc.anchor = GridBagConstraints.LINE_START;
         panelSuperior.add(lbDataRetornEscrit, gbc);
 
         gbc.gridx = 0;
-        gbc.gridy = 4;
+        gbc.gridy = 5;
         gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         panelSuperior.add(lbIds, gbc);
@@ -182,11 +197,10 @@ public class FinestraPrestec extends JDialog {
         java.sql.Date dataSql = new java.sql.Date(d.getTime());
         if (!esAvui) {
             p.setDataDevolucio(dataSql);
-        }else{
+        } else {
             p.setDataPrestec(dataSql);
         }
-        
-        
+
         return String.valueOf(new SimpleDateFormat("dd-MM-yyyy").format(d));
     }
 
@@ -230,7 +244,6 @@ public class FinestraPrestec extends JDialog {
             }
         };
         table.getTableHeader().setResizingAllowed(false);
-
 
         iniciarTaulaGeneral();
         // Agregar un ListSelectionListener para detectar la selección de filas
@@ -329,12 +342,18 @@ public class FinestraPrestec extends JDialog {
                 if (selectedRow != -1) {
                     p.setIdLlibre(idLlibreAFerPrestec);
                     p.setIdPersona(personaldi.obtenirIdPerNumCarnet(table.getValueAt(selectedRow, 1).toString()).get(0).getIdPersonal());
-                    if (prestecdi.realitzarPrestec(p)) {
-                        JOptionPane.showMessageDialog(null, "Prestec realitzat correctament", "Correcte", JOptionPane.INFORMATION_MESSAGE);
-                        dispose();
+                    if (!personaSeleccionada.isSansionat()) {
+
+                        if (prestecdi.realitzarPrestec(p)) {
+                            JOptionPane.showMessageDialog(null, "Prestec realitzat correctament", "Correcte", JOptionPane.INFORMATION_MESSAGE);
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(null, "Error al realitzar prestec", "Error", JOptionPane.ERROR_MESSAGE);
+                        }
                     } else {
-                        JOptionPane.showMessageDialog(null, "Error al realitzar prestec", "Error", JOptionPane.ERROR_MESSAGE);
+                        JOptionPane.showMessageDialog(null, "La persona seleccionada està sancionada. No es pot efectuar el prestec", "Error", JOptionPane.ERROR_MESSAGE);
                     }
+
                 } else {
                     JOptionPane.showMessageDialog(null, "Selecciona un id d'una persona", "Error", JOptionPane.ERROR_MESSAGE);
                 }
@@ -346,8 +365,9 @@ public class FinestraPrestec extends JDialog {
     }
 
     private void _emplenarDadesUsuari(String numCarnet) {
-        lbNomEscrit.setText(personaldi.obtenirPersonaPerNumCarnet(numCarnet).getNom());
-        lbCognomEscrit.setText(personaldi.obtenirPersonaPerNumCarnet(numCarnet).getCognom());
+        personaSeleccionada = personaldi.obtenirPersonaPerNumCarnet(numCarnet);
+        lbNomEscrit.setText(personaSeleccionada.getNom());
+        lbCognomEscrit.setText(personaSeleccionada.getCognom());
     }
 
     private void montar() throws SQLException {
@@ -359,7 +379,7 @@ public class FinestraPrestec extends JDialog {
 
     private void iniciarVista() {
         setSize(500, 450);
-        setLocationRelativeTo(this);
+        setLocationRelativeTo(null);
         setTitle("Prestec");
         setResizable(false);
         setVisible(true);

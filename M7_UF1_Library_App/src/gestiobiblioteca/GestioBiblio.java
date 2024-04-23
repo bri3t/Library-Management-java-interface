@@ -1,5 +1,6 @@
 package gestiobiblioteca;
 
+import auth.Login;
 import interficie.*;
 import javax.swing.*;
 import java.awt.*;
@@ -19,15 +20,17 @@ public class GestioBiblio extends JDialog {
     private JMenuItem altaPrestatgeMenuItem, consultaPrestatgeMenuItem;
     private JMenuItem altaBaldaMenuItem, consultaBaldaMenuItem;
     private JMenuItem altaTipusFonsMenuItem, consultaFonsMenuItem;
+    private JMenuItem logout;
     private JMenuItem prestecMenuItem;
-    
+
     private final Usuari USUARIACTIU;
 
     public GestioBiblio(boolean esAdmin, Usuari usuari, Frame owner) {
         super(owner);
         USUARIACTIU = usuari;
         setTitle("Gestió Biblioteca");
-        setSize(405, 200);
+        setSize(500, 200);
+        setLocationRelativeTo(null);
         setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
         JMenuBar menuBar = new JMenuBar();
@@ -70,10 +73,15 @@ public class GestioBiblio extends JDialog {
         tipusFons.add(consultaFonsMenuItem);
         menuBar.add(tipusFons);
 
-        JMenu configuracioMenu = new JMenu("Configuracio");
+        JMenu prestecsMenu = new JMenu("Prestecs");
         prestecMenuItem = new JMenuItem("Préstec");
-        configuracioMenu.add(prestecMenuItem);
-        menuBar.add(configuracioMenu);
+        prestecsMenu.add(prestecMenuItem);
+        menuBar.add(prestecsMenu);
+
+        JMenu logoutMenu = new JMenu("Log out");
+        logout = new JMenuItem("Log out");
+        logoutMenu.add(logout);
+        menuBar.add(logoutMenu);
 
         // item Llibre
         altaLlibreMenuItem.addActionListener(new ActionListener() {
@@ -178,6 +186,15 @@ public class GestioBiblio extends JDialog {
             @Override
             public void actionPerformed(ActionEvent e) {
                 new Prestecs((Frame) getOwner());
+            }
+        });
+
+        // item logout
+        logout.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                dispose();
+                new Login();
             }
         });
 
